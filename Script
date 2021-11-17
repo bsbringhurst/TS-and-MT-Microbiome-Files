@@ -1,0 +1,84 @@
+#Importing data
+qiime tools import \
+  --type EMPPairedEndSequences \
+  --input-path emp-paired-end-sequences \
+  --output-path emp-paired-end-sequences.qza
+
+#Demultiplex data, added no-golay option since barcodes are 8 nt(do not need option if 12 nt barcodes)
+qiime demux emp-paired \
+  --m-barcodes-file sample-metadata.tsv \
+  --m-barcodes-column BarcodeSequence \
+  --i-seqs emp-paired-end-sequences.qza \
+  --p-no-golay-error-correction \
+  --o-per-sample-sequences demux.qza \
+  --o-error-correction-details demux-details.qza
+
+qiime demux summarize \
+  --i-data demux.qza \
+  --o-visualization demux.qzv
+
+#denoise data, used dada2 first (look at demux.qzv to decide trunc value based on Q20 value = 260)
+qiime dada2 denoise-paired \
+  --i-demultiplexed-seqs demux.qza \
+  --p-trim-left-f 0 \
+  --p-trim-left-r 0 \
+  --p-trunc-len-f 260 \
+  --p-trunc-len-r 260 \
+  --o-table table.qza \
+  --o-representative-sequences rep-seqs.qza \
+  --o-denoising-stats denoising-stats.qza
+
+qiime feature-table summarize \
+  --i-table table.qza \
+  --o-visualization table.qzv \
+  --m-sample-metadata-file sample-metadata.tsv
+
+#Remove soil data from original files
+
+qiime feature-table filter-samples \
+--i-table table.qza \
+--m-metadata-file sample-metadata.tsv \
+--p-where "[Type] IN ('Ant','Fungus')" \
+--o-filtered-table table-all.qza
+
+qiime feature-table filter-seqs  \
+--i-data rep-seqs.qza \
+--i-table table-all.qza \
+--o-filtered-data rep-seqs-all.qza
+
+qiime feature-table summarize \
+  --i-table table-all.qza \
+  --o-visualization table-all.qzv \
+
+#phylogeny
+qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences rep-seqs-all.qza \
+  --o-alignment aligned-rep-seqs-all.qza \
+  --o-masked-alignment masked-aligned-rep-seqs-all.qza \
+  --o-tree unrooted-tree-all.qza \
+  --o-rooted-tree rooted-tree-all.qza
+
+
+qiime diversity core-metrics-phylogenetic \
+  --i-phylogeny rooted-tree-all.qza \
+  --i-table table-all.qza \
+  --p-sampling-depth 9500 \
+  --m-metadata-file sample-metadata-all.tsv \
+  --output-dir core-metrics-results-all
+
+#taxa classifier, used Silva 132 classifier at 99% accuracy 
+
+qiime feature-classifier classify-sklearn \
+  --i-classifier classifier.qza \
+  --i-reads rep-seqs-all.qza \
+  --o-classification taxonomy-all.qza
+
+qiime metadata tabulate \
+  --m-input-file taxonomy-all.qza \
+  --o-visualization taxonomy-all.qzv
+
+qiime taxa barplot \
+  --i-table table-all.qza \
+  --i-taxonomy taxonomy-all.qza \
+  --m-metadata-file sample-metadata-all.tsv \
+  --o-visualization taxa-bar-plots-all.qzv
