@@ -58,7 +58,6 @@ qiime phylogeny align-to-tree-mafft-fasttree \
   --o-tree unrooted-tree-all.qza \
   --o-rooted-tree rooted-tree-all.qza
 
-
 qiime diversity core-metrics-phylogenetic \
   --i-phylogeny rooted-tree-all.qza \
   --i-table table-all.qza \
@@ -67,6 +66,25 @@ qiime diversity core-metrics-phylogenetic \
   --output-dir core-metrics-results-all
 
 #taxa classifier, used Silva 132 classifier at 99% accuracy 
+
+qiime tools import \
+  --type 'FeatureData[Sequence]' \
+  --input-path silva_132_99_16S.fasta \
+  --output-path silva_132_99_16S.qza
+
+qiime tools import \
+  --type 'FeatureData[Taxonomy]' \
+  --input-format HeaderlessTSVTaxonomyFormat \
+  --input-path majority_taxonomy_all_levels.txt \
+  --output-path ref-taxonomy.qza
+
+qiime feature-classifier extract-reads \
+  --i-sequences silva_132_99_16S.qza \
+  --p-f-primer GAGTTTGATCNTGGCTCAG \
+  --p-r-primer GTNTTACNGGGCKGCTG \
+  --p-min-length 100 \
+  --p-max-length 600 \
+  --o-reads ref-seqs.qza
 
 qiime feature-classifier classify-sklearn \
   --i-classifier classifier.qza \
