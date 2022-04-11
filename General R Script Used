@@ -27,13 +27,13 @@ legend("bottomleft", legend = c("Stock Ants", "Clade A Ants", "Clade B Ants"), c
 #Example script for conducting an indicator species analysis
 Fungus = read.csv("Ants No C or M.csv", header= TRUE)                           #reads in the OTU table csv file with metadata
 abund = Fungus[,7:ncol(Fungus)]                                                 #creates a table of just OTU abundance data (abund), first 6 columns contained metadata
-species = Fungus$Species                                                        #Creates a vector that contains the information from the “Time” column:
-region = Fungus$Region
-clade = Fungus$Clade
-inv = multipatt(abund, species, func = "r.g", control = how(nperm=9999))
-inv = multipatt(abund, region, func = "r.g", control = how(nperm=9999))
-inv = multipatt(abund, clade, func = "r.g", control = how(nperm=9999))
-summary(inv)
+species = Fungus$Species                                                        #creates a vector that contains the information from the “Species" column in the metadata section of the csv file
+region = Fungus$Region                                                          #creates a vector that contains the information from the “Region" column in the metadata section of the csv file
+clade = Fungus$Clade                                                            #creates a vector that contains the information from the “Clade" column in the metadata section of the csv file
+inv = multipatt(abund, species, func = "r.g", control = how(nperm=9999))        #performs the ISA based on the abundance table and the Species vector
+inv = multipatt(abund, region, func = "r.g", control = how(nperm=9999))         #performs the ISA based on the abundance table and the Region vector
+inv = multipatt(abund, clade, func = "r.g", control = how(nperm=9999))          #performs the ISA based on the abundance table and the Clade vector
+summary(inv)                                                                    #shows results of an ISA, perform each ISA one at a time and then see the results here
 
 
 
@@ -71,3 +71,6 @@ lines (M.turr$ï..Samples,M.turr$MS.S.est., type = "l", lwd = 2, col = "gray10",
 lines (M.turr$ï..Samples, M.turr$MS.S.est..95..CI.Lower.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray10")                                                                     #plot lower bound of CI for dataset B
 lines (M.turr$ï..Samples, M.turr$MS.S.est..95..CI.Upper.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray10")                                                                     #plot upper bound of CI for dataset B
 
+
+
+#
