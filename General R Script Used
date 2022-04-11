@@ -12,19 +12,19 @@ ano                                                                       #resul
 
 
 
-#
-Ants = read.csv("OTU Table - Metadata Excluded - No Cp or Mt Septentrionalis.csv", header= TRUE)
-ord <- metaMDS(Ants, try=1000)
-AntsENV = read.csv("Septentrionalis Metadata 3.22.2022.csv", header= TRUE)
-attach(AntsENV)
-plot(ord)
+#Example script for conducting and plotting a non-metric dimensional scaling (NMDS) plot
+Ants = read.csv("OTU Table - Metadata Excluded - No Cp or Mt Septentrionalis.csv", header= TRUE)           #reads in the OTU table csv file
+ord <- metaMDS(Ants, try=1000)                                                                             #conducts the NMDS analysis on the OTU table
+AntsENV = read.csv("Septentrionalis Metadata 12.10.2021.csv", header= TRUE)                                #reads in the metadata csv file
+attach(AntsENV)                                                                                            #attached the metadata to the OTU table data                                                       
+plot(ord)                                                                                                  #this and the following lines plot the NMDS plot
 plot(ord, disp = "sites", type = "n", main = "NMDS of T. septentrionalis Fungal Switches")
 points(ord,display="sites", col = Color, bg = Color, pch=Shape ,cex=1.25)
-legend("bottomleft", legend = c("Stock Ants", "Clade A Ants", "Clade B Ants", "Stock A Fungus", "Stock B Fungus", "Clade A Fungus", "Clade B Fungus", "Frass Samples", "Polenta Samples"), col = c("blue","red", "purple", "steelblue1","navy","red","purple","darkorange", "darkorange"), pt.bg = c("blue","red", "purple", "steelblue1","navy","red","purple","darkorange", "darkorange"), pch = c(21,21,21,24,24,24,24,22,23))
+legend("bottomleft", legend = c("Stock Ants", "Clade A Ants", "Clade B Ants"), col = c("blue","red", "purple"), pt.bg = c("blue","red", "purple"), pch = c(21,21,21))
 
 
 
-#
+#Example script for conducting an indicator species analysis
 Fungus = read.csv("Ants No C or M Gammaproteobacteria.csv", header= TRUE)       #reads in the OTU table csv file with metadata
 abund = Fungus[,7:ncol(Fungus)]
 species = Fungus$Species
@@ -37,48 +37,37 @@ summary(inv)
 
 
 
-#
-FungusENV = read.csv("Fungus ENV No B6.csv", header= TRUE)
-Fungus = read.csv("Fungus No C or M  or Meso No B6 Enterobacteriales.csv", header= TRUE)
-attach(FungusENV)
-orddefun <- decorana(Fungus)
-orddefun
+#Example script for conducting a Detrended correspondence analysis (DCA)
+FungusENV = read.csv("Fungus ENV.csv", header= TRUE)                                  #reads in the metadata csv file
+Fungus = read.csv("Fungus No C or M.csv", header= TRUE)                               #reads in the OTU table csv file with metadata
+attach(FungusENV)                                                                     #attached the metadata to the OTU table data     
+orddefun <- decorana(Fungus)                                                          #performs DCA
+orddefun                                                                              #results of DCA
 
 
 
-#
-FungusENV = read.csv("Fungus ENV No B6.csv", header= TRUE)
-Fungus = read.csv("Fungus No C or M  or Meso No B6 Enterobacteriales.csv", header= TRUE)
-attach(FungusENV)
-orddefun <- decorana(Fungus)
-plot(orddefun)
-summary(orddefun)
-orddefun
+#Example script for conducting a Redundancy analysis (RDA)
+Fungus = read.csv("Fungus No C or M.csv", header= TRUE)                               #reads in the OTU table csv file with metadata
+FungusENV = read.csv("Fungus ENV.csv", header= TRUE)                                  #reads in the metadata csv file
+ord2 <- rda(Fungus ~ Species + Clade + Region, data=FungusENV)                        #performs RDA, including the variables of host ant species, associated fungal clade and region (east or central TX)
+anova(ord2,permutations = 10000, by ="term")                                          #conducts an ANOVA-like permutation test for the RDA output using 10000 permutations
 
 
 
-#
-Fungus = read.csv("Fungus No C or M  or Meso No B6 Enterobacteriales.csv", header= TRUE)
-FungusENV = read.csv("Fungus ENV No B6.csv", header= TRUE)
-ord2 <- rda(Fungus ~ Species + Clade + Region, data=FungusENV)
-anova(ord2,permutations = 10000, by ="term")
+#Example script for conducting a Canonical-correlation analysis (CCA)
+FungusENV = read.csv("Fungus ENV.csv", header= TRUE)                                 #reads in the metadata csv file
+Fungus = read.csv("Fungus No C or M.csv", header= TRUE)                              #reads in the OTU table csv file with metadata
+ord2 <- cca(Fungus ~ Species+Clade+Region, data=FungusENV)                           #performs CCA, including the variables of host ant species, associated fungal clade and region (east or central TX)
+anova.cca(ord2,permutations = 10000, by ="term")                                     #conducts an ANOVA-like permutation test for the CCA output using 10000 permutations
 
 
 
-#
-FungusENV = read.csv("Fungus ENV No B6.csv", header= TRUE)
-Fungus = read.csv("Fungus No C or M  or Meso No B6 Gammaproteobacteria.csv", header= TRUE)
-ord2 <- cca(Fungus ~ Species+Clade+Region, data=FungusENV)
-anova.cca(ord2,permutations = 10000, by ="term")
-
-
-
-#Plots the results of the rarefaction curve data produced in EstimateS v9.1.0
-M.turrCeph <- read.csv("TS F v MT F Fungus.csv")
-plot (M.turrCeph$ï..Samples,M.turrCeph$TS.est., type = "l", lwd = 2, col = "gray60", xlab = "Samples Size", xlim=c(xmin=0, xmax= 22), ylim=c(ymin = 0, ymax= 800), ylab = "Number of OTUs")
-lines (M.turrCeph$ï..Samples, M.turrCeph$TS.est..95..CI.Lower.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray60")
-lines (M.turrCeph$ï..Samples, M.turrCeph$TS.est..95..CI.Upper.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray60")
-lines (M.turrCeph$ï..Samples,M.turrCeph$MS.est., type = "l", lwd = 2, col = "gray10", xlab = "Samples Size", ylab = "Number of Species")
-lines (M.turrCeph$ï..Samples, M.turrCeph$MS.est..95..CI.Lower.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray10")
-lines (M.turrCeph$ï..Samples, M.turrCeph$MS.est..95..CI.Upper.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray10")
+#Plots the results of the rarefaction curve data produced in EstimateS v9.1.0 based on S(est)
+M.turr <- read.csv("TS F v MT F Fungus.csv")                                            #reads in the csv file with the S(est) and Lower and Upper 95% confidence intervals values per sample
+plot (M.turr$ï..Samples,M.turr$TS.S.est., type = "l", lwd = 2, col = "gray60", xlab = "Samples Size", xlim=c(xmin=0, xmax= 22), ylim=c(ymin = 0, ymax= 800), ylab = "Number of OTUs")   #plots dataset A (such as the results of the rarefaction analysis for the Trachymyrmex septentrionalis samples)
+lines (M.turr$ï..Samples, M.turr$TS.S.est..95..CI.Lower.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray60")
+lines (M.turr$ï..Samples, M.turr$TS.S.est..95..CI.Upper.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray60")
+lines (M.turr$ï..Samples,M.turr$MS.S.est., type = "l", lwd = 2, col = "gray10", xlab = "Samples Size", ylab = "Number of Species")                                                      #plots one set of data
+lines (M.turr$ï..Samples, M.turr$MS.S.est..95..CI.Lower.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray10")
+lines (M.turr$ï..Samples, M.turr$MS.S.est..95..CI.Upper.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray10")
 
