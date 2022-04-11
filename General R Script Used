@@ -1,1 +1,84 @@
+#Packages used for the analysis
+library(indicspecies)
+library(vegan)
+library(multcomp)
+
+#Example script for conducting an Analysis of Similarity (ANOSIM)
+Ants = read.csv("ANOSIM TP Fungus SB - B.csv", header= TRUE)              #reads in the OTU table csv file with metadata
+abund = Ants[,7:ncol(Ants)]                                               #creates a table of just OTU abundance data (abund), first 6 columns contained metadata
+m_com =as.matrix(abund)                                                   #makes a input matrix (m_com) for the ANOSIM
+ano = anosim(m_com, Ants$Clade, distance = "bray", permutations = 10000)  #conducts the ANOSIM based on the input matrix; selecting for the option Clade in the metadata as the factor in the ANOSIM, using bray-curtis distances, and using 10000 permutations 
+ano                                                                       #results of the ANOSIM
+
+
+
+#
+Ants = read.csv("OTU Table - Metadata Excluded - No Cp or Mt Septentrionalis.csv", header= TRUE)
+ord <- metaMDS(Ants, try=1000)
+AntsENV = read.csv("Septentrionalis Metadata 3.22.2022.csv", header= TRUE)
+attach(AntsENV)
+plot(ord)
+plot(ord, disp = "sites", type = "n", main = "NMDS of T. septentrionalis Fungal Switches")
+points(ord,display="sites", col = Color, bg = Color, pch=Shape ,cex=1.25)
+legend("bottomleft", legend = c("Stock Ants", "Clade A Ants", "Clade B Ants", "Stock A Fungus", "Stock B Fungus", "Clade A Fungus", "Clade B Fungus", "Frass Samples", "Polenta Samples"), col = c("blue","red", "purple", "steelblue1","navy","red","purple","darkorange", "darkorange"), pt.bg = c("blue","red", "purple", "steelblue1","navy","red","purple","darkorange", "darkorange"), pch = c(21,21,21,24,24,24,24,22,23))
+
+
+
+#
+Fungus = read.csv("Ants No C or M Gammaproteobacteria.csv", header= TRUE)       #reads in the OTU table csv file with metadata
+abund = Fungus[,7:ncol(Fungus)]
+species = Fungus$Species
+region = Fungus$Region
+clade = Fungus$Clade
+inv = multipatt(abund, species, func = "r.g", control = how(nperm=9999))
+inv = multipatt(abund, region, func = "r.g", control = how(nperm=9999))
+inv = multipatt(abund, clade, func = "r.g", control = how(nperm=9999))
+summary(inv)
+
+
+
+#
+FungusENV = read.csv("Fungus ENV No B6.csv", header= TRUE)
+Fungus = read.csv("Fungus No C or M  or Meso No B6 Enterobacteriales.csv", header= TRUE)
+attach(FungusENV)
+orddefun <- decorana(Fungus)
+orddefun
+
+
+
+#
+FungusENV = read.csv("Fungus ENV No B6.csv", header= TRUE)
+Fungus = read.csv("Fungus No C or M  or Meso No B6 Enterobacteriales.csv", header= TRUE)
+attach(FungusENV)
+orddefun <- decorana(Fungus)
+plot(orddefun)
+summary(orddefun)
+orddefun
+
+
+
+#
+Fungus = read.csv("Fungus No C or M  or Meso No B6 Enterobacteriales.csv", header= TRUE)
+FungusENV = read.csv("Fungus ENV No B6.csv", header= TRUE)
+ord2 <- rda(Fungus ~ Species + Clade + Region, data=FungusENV)
+anova(ord2,permutations = 10000, by ="term")
+
+
+
+#
+FungusENV = read.csv("Fungus ENV No B6.csv", header= TRUE)
+Fungus = read.csv("Fungus No C or M  or Meso No B6 Gammaproteobacteria.csv", header= TRUE)
+ord2 <- cca(Fungus ~ Species+Clade+Region, data=FungusENV)
+anova.cca(ord2,permutations = 10000, by ="term")
+
+
+
+#Plots the results of the rarefaction curve data produced in EstimateS v9.1.0
+M.turrCeph <- read.csv("TS F v MT F Fungus.csv")
+plot (M.turrCeph$ï..Samples,M.turrCeph$TS.est., type = "l", lwd = 2, col = "gray60", xlab = "Samples Size", xlim=c(xmin=0, xmax= 22), ylim=c(ymin = 0, ymax= 800), ylab = "Number of OTUs")
+lines (M.turrCeph$ï..Samples, M.turrCeph$TS.est..95..CI.Lower.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray60")
+lines (M.turrCeph$ï..Samples, M.turrCeph$TS.est..95..CI.Upper.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray60")
+lines (M.turrCeph$ï..Samples,M.turrCeph$MS.est., type = "l", lwd = 2, col = "gray10", xlab = "Samples Size", ylab = "Number of Species")
+lines (M.turrCeph$ï..Samples, M.turrCeph$MS.est..95..CI.Lower.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray10")
+lines (M.turrCeph$ï..Samples, M.turrCeph$MS.est..95..CI.Upper.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray10")
 
