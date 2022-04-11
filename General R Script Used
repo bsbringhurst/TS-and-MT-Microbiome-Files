@@ -25,9 +25,9 @@ legend("bottomleft", legend = c("Stock Ants", "Clade A Ants", "Clade B Ants"), c
 
 
 #Example script for conducting an indicator species analysis
-Fungus = read.csv("Ants No C or M Gammaproteobacteria.csv", header= TRUE)       #reads in the OTU table csv file with metadata
-abund = Fungus[,7:ncol(Fungus)]
-species = Fungus$Species
+Fungus = read.csv("Ants No C or M.csv", header= TRUE)                           #reads in the OTU table csv file with metadata
+abund = Fungus[,7:ncol(Fungus)]                                                 #creates a table of just OTU abundance data (abund), first 6 columns contained metadata
+species = Fungus$Species                                                        #Creates a vector that contains the information from the “Time” column:
 region = Fungus$Region
 clade = Fungus$Clade
 inv = multipatt(abund, species, func = "r.g", control = how(nperm=9999))
@@ -63,11 +63,11 @@ anova.cca(ord2,permutations = 10000, by ="term")                                
 
 
 #Plots the results of the rarefaction curve data produced in EstimateS v9.1.0 based on S(est)
-M.turr <- read.csv("TS F v MT F Fungus.csv")                                            #reads in the csv file with the S(est) and Lower and Upper 95% confidence intervals values per sample
+M.turr <- read.csv("TS F v MT F Fungus.csv")                                                                                                                #reads in the csv file with the S(est) and Lower and Upper 95% confidence intervals (CI) values per sample
 plot (M.turr$ï..Samples,M.turr$TS.S.est., type = "l", lwd = 2, col = "gray60", xlab = "Samples Size", xlim=c(xmin=0, xmax= 22), ylim=c(ymin = 0, ymax= 800), ylab = "Number of OTUs")   #plots dataset A (such as the results of the rarefaction analysis for the Trachymyrmex septentrionalis samples)
-lines (M.turr$ï..Samples, M.turr$TS.S.est..95..CI.Lower.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray60")
-lines (M.turr$ï..Samples, M.turr$TS.S.est..95..CI.Upper.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray60")
-lines (M.turr$ï..Samples,M.turr$MS.S.est., type = "l", lwd = 2, col = "gray10", xlab = "Samples Size", ylab = "Number of Species")                                                      #plots one set of data
-lines (M.turr$ï..Samples, M.turr$MS.S.est..95..CI.Lower.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray10")
-lines (M.turr$ï..Samples, M.turr$MS.S.est..95..CI.Upper.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray10")
+lines (M.turr$ï..Samples, M.turr$TS.S.est..95..CI.Lower.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray60")                                                                     #plot lower bound of CI for dataset A
+lines (M.turr$ï..Samples, M.turr$TS.S.est..95..CI.Upper.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray60")                                                                     #plot upper bound of CI for dataset A
+lines (M.turr$ï..Samples,M.turr$MS.S.est., type = "l", lwd = 2, col = "gray10", xlab = "Samples Size", ylab = "Number of Species")                                                      #plots dataset B (such as the results of the rarefaction analysis for the Mycetomoellerius turrifex samples)
+lines (M.turr$ï..Samples, M.turr$MS.S.est..95..CI.Lower.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray10")                                                                     #plot lower bound of CI for dataset B
+lines (M.turr$ï..Samples, M.turr$MS.S.est..95..CI.Upper.Bound, type = "l", lwd = 2, lty = "dashed", col = "gray10")                                                                     #plot upper bound of CI for dataset B
 
