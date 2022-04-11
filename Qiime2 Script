@@ -24,31 +24,14 @@ qiime dada2 denoise-paired \
   --p-trim-left-r 0 \
   --p-trunc-len-f 260 \
   --p-trunc-len-r 260 \
-  --o-table table.qza \
-  --o-representative-sequences rep-seqs.qza \
+  --o-table table-all.qza \
+  --o-representative-sequences rep-seqs-all.qza \
   --o-denoising-stats denoising-stats.qza
-
-qiime feature-table summarize \
-  --i-table table.qza \
-  --o-visualization table.qzv \
-  --m-sample-metadata-file sample-metadata.tsv
-
-#Remove soil data from original files
-
-qiime feature-table filter-samples \
---i-table table.qza \
---m-metadata-file sample-metadata.tsv \
---p-where "[Type] IN ('Ant','Fungus')" \
---o-filtered-table table-all.qza
-
-qiime feature-table filter-seqs  \
---i-data rep-seqs.qza \
---i-table table-all.qza \
---o-filtered-data rep-seqs-all.qza
 
 qiime feature-table summarize \
   --i-table table-all.qza \
   --o-visualization table-all.qzv \
+  --m-sample-metadata-file sample-metadata.tsv
 
 #phylogeny
 qiime phylogeny align-to-tree-mafft-fasttree \
