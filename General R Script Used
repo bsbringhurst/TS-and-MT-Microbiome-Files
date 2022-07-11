@@ -2,6 +2,7 @@
 library(indicspecies)
 library(vegan)
 library(multcomp)
+library(venn)
 
 #Example script for conducting an Analysis of Similarity (ANOSIM)
 Ants = read.csv("ANOSIM TP Fungus SB - B.csv", header= TRUE)              #reads in the OTU table csv file with metadata
@@ -73,4 +74,6 @@ lines (M.turr$ï..Samples, M.turr$MS.S.est..95..CI.Upper.Bound, type = "l", lwd 
 
 
 
-#
+#Creates a Venn Diagram based on the presence or absence of a OTU within a category (such as fungus garden region or ant species)
+ant_presence_absence = read.csv("Venn Diagram Input.csv", header= TRUE)                   #Inputs data for Venn digram. Data must be in a presence/absence format, or a 1=present and 0=absent, and data must be based on an entire category, such as creating a Venn diagram comparing all the eastern fungal gardens and all central fungal gardens. 
+venn(ant_presence_absence, zcolor ="red, blue, yellow, green", ilcs = 1)                  #Created Venn diagram
