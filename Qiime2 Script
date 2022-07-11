@@ -33,21 +33,6 @@ qiime feature-table summarize \
   --o-visualization table-all.qzv \
   --m-sample-metadata-file sample-metadata.tsv
 
-#phylogeny
-qiime phylogeny align-to-tree-mafft-fasttree \
-  --i-sequences rep-seqs-all.qza \
-  --o-alignment aligned-rep-seqs-all.qza \
-  --o-masked-alignment masked-aligned-rep-seqs-all.qza \
-  --o-tree unrooted-tree-all.qza \
-  --o-rooted-tree rooted-tree-all.qza
-
-qiime diversity core-metrics-phylogenetic \
-  --i-phylogeny rooted-tree-all.qza \
-  --i-table table-all.qza \
-  --p-sampling-depth 9500 \
-  --m-metadata-file sample-metadata-all.tsv \
-  --output-dir core-metrics-results-all
-
 #taxa classifier, used Silva 132 classifier at 99% accuracy 
 
 qiime tools import \
@@ -83,3 +68,94 @@ qiime taxa barplot \
   --i-taxonomy taxonomy-all.qza \
   --m-metadata-file sample-metadata-all.tsv \
   --o-visualization taxa-bar-plots-all.qzv
+#Input taxa-bar-plots-all.qzv into Qiime2 View (https://view.qiime2.org/) to create OTU table
+
+
+#To find Shannon's Diversity Index for all data (Mesoplasma included)
+#remove chloroplast and mitochondria from table
+qiime taxa filter-table \
+--i-table table-all.qza \
+--i-taxonomy taxonomy-soil.qza \
+--p-exclude mitochondria,chloroplast \
+--o-filtered-table table_all_no_cp_or_mt.qza
+
+#remove chloroplast and mitochondria from sequences
+qiime taxa filter-seqs \
+--i-sequences rep-seqs.qza \
+--i-taxonomy taxonomy-soil.qza \
+--p-exclude mitochondria,chloroplast \
+--o-filtered-sequences rep-seqs_all_no_cp_or_mt.qza
+
+qiime feature-table summarize \
+  --i-table table_all_no_cp_or_mt.qza \
+  --o-visualization table_all_no_cp_or_mt.qzv \
+
+
+#phylogeny
+qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences rep-seqs_all_no_cp_or_mt.qza \
+  --p-n-threads 15 \
+  --o-alignment merged_aligned-rep-seqs.qza \
+  --o-masked-alignment merged_masked-aligned-rep-seqs.qza \
+  --o-tree merged_unrooted-tree.qza \
+  --o-rooted-tree merged_rooted-tree.qza
+
+#alpha and beta div 
+qiime diversity core-metrics-phylogenetic \
+  --i-phylogeny merged_rooted-tree.qza \
+  --i-table table_all_no_cp_or_mt.qza \
+  --p-sampling-depth 1700 \
+  --m-metadata-file sample-metadata.tsv \
+  --output-dir 5.14.22.core-metrics-results
+
+
+qiime diversity alpha-group-significance \
+--i-alpha-diversity 5.14.22.core-metrics-results/shannon_vector.qza \
+--m-metadata-file sample-metadata.tsv \
+--o-visualization 5.14.22.core-metrics-results/shannon_group.qzv
+
+
+
+#To find Shannon's Diversity Index for all data (Mesoplasma not included)
+#remove mesoplasma from table
+qiime taxa filter-table \
+--i-table table_all_no_cp_or_mt.qza \
+--i-taxonomy taxonomy-soil.qza \
+--p-exclude mesoplasma \
+--o-filtered-table merged_table_all_no_cp_or_mt_or_meso.qza
+
+qiime feature-table summarize \
+  --i-table merged_table_all_no_cp_or_mt_or_meso.qza \
+  --o-visualization merged_table_all_no_cp_or_mt_or_meso.qzv \
+  --m-sample-metadata-file sample-metadata.tsv
+
+#remove mesoplasma from sequences
+qiime taxa filter-seqs \
+--i-sequences rep-seqs_all_no_cp_or_mt.qza \
+--i-taxonomy taxonomy-soil.qza \
+--p-exclude mesoplasma \
+--o-filtered-sequences merged_rep-seqs_no_cp_or_mt_or_meso.qza
+
+
+#phylogeny
+qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences merged_rep-seqs_no_cp_or_mt_or_meso.qza \
+  --p-n-threads 15 \
+  --o-alignment merged_aligned-rep-seqs_or_meso.qza \
+  --o-masked-alignment merged_masked-aligned-rep-seqs_or_meso.qza \
+  --o-tree merged_unrooted-tree_or_meso.qza \
+  --o-rooted-tree merged_rooted-tree_or_meso.qza
+
+#alpha and beta div 
+qiime diversity core-metrics-phylogenetic \
+  --i-phylogeny merged_rooted-tree_or_meso.qza \
+  --i-table merged_table_all_no_cp_or_mt_or_meso.qza \
+  --p-sampling-depth 1050 \
+  --m-metadata-file sample-metadata.tsv \
+  --output-dir merged_core-metrics-results_or_meso
+
+
+qiime diversity alpha-group-significance \
+--i-alpha-diversity merged_core-metrics-results_or_meso/shannon_vector.qza \
+--m-metadata-file sample-metadata.tsv \
+--o-visualization merged_core-metrics-results_or_meso/shannon_group_or_meso.qzv
